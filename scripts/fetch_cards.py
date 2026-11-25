@@ -55,9 +55,12 @@ def extract_cards(html: str) -> list[dict]:
 def clean_artist(artist) -> dict | None:
     if not isinstance(artist, dict):  # "$undefined" quand pas d'artiste
         return None
+    bio = artist.get("bio")
+    if bio:  # U+2028/U+2029 (séparateurs de ligne/paragraphe Unicode) -> espace
+        bio = bio.replace(" ", " ").replace(" ", " ")
     return {
         "name": artist.get("name"),
-        "bio": artist.get("bio"),
+        "bio": bio,
         "links": [{"network": l.get("network"), "url": l.get("url")} for l in artist.get("links", [])],
     }
 
