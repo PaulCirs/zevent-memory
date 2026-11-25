@@ -1,0 +1,30 @@
+# Images des cartes : contenu protégé, régénéré par scripts/fetch_cards.py
+data/cards/large/
+data/cards/thumb/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / front
+node_modules/
+dist/
+coverage/
+
+# Éditeurs et système
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
