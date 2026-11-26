@@ -30,7 +30,31 @@ from PIL import Image
 GALLERY_URL = "https://www.memoka.gg/galerie/zevent-x-littlebigwhale"
 USER_AGENT = "Mozilla/5.0 (personal card-collection script)"
 SIZES = {"large": 800, "thumb": 300}
-RARITY_FR = {"COMMON": "Classique", "RARE": "Rare", "EPIC": "Épique"}
+RARITY_FR = {"COMMON": "Classique", "SPE": "Spé", "RARE": "Rare", "EPIC": "Épique"}
+
+# Rareté propre à notre jeu, absente de Memoka : les cartes 222 à 249 (rares chez eux)
+# deviennent « Spé », entre Classique et Rare.
+SPE_NUMBERS = {str(n) for n in range(222, 250)}
+
+
+def game_rarity(card: dict) -> str:
+    if card["number"] in SPE_NUMBERS:
+        return "SPE"
+    return card["rarity"]
+
+
+def display_key(number: str) -> tuple[int, int]:
+    """Ordre d'affichage : 1 à 105, puis BO1 à BO5 (rares sans numéro), puis 106 et suite.
+    `number` est du texte : trié tel quel, on aurait 1, 10, 100, 101..."""
+    if number.startswith("BO"):
+        return (105, int(number[2:]))
+    return (int(number), 0)
+
+
+def add_positions(cards: list[dict]) -> None:
+    """Ajoute `position` (1, 2, 3...) : l'appli trie les cartes sur ce champ."""
+    for position, card in enumerate(sorted(cards, key=lambda c: display_key(c["number"])), 1):
+        card["position"] = position
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "data" / "cards"
 
@@ -82,12 +106,13 @@ def process_card(card: dict, keep_originals: bool) -> dict:
             img.resize((width, height), Image.LANCZOS).save(paths[name], "WEBP", quality=85)
         time.sleep(0.3)  # rester poli avec leur serveur
 
+    rarity = game_rarity(card)
     return {
         "id": card["id"],
         "number": card["number"],
         "name": card["name"],
-        "rarity": card["rarity"],
-        "rarityLabel": RARITY_FR.get(card["rarity"], card["rarity"]),
+        "rarity": rarity,
+        "rarityLabel": RARITY_FR.get(rarity, rarity),
         "artist": clean_artist(card.get("artist")),
         "images": {name: p.relative_to(OUT_DIR).as_posix() for name, p in paths.items()},
         "sourceUrl": card["frontImageUrl"],
@@ -115,6 +140,7 @@ def main():
             failures.append(card["number"])
             print(f"[{i}/{len(cards)}] ÉCHEC #{card['number']} : {e}")
 
+    add_positions(result)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "cards.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
