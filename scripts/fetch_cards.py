@@ -81,7 +81,7 @@ def clean_artist(artist) -> dict | None:
         return None
     bio = artist.get("bio")
     if bio:  # U+2028/U+2029 (séparateurs de ligne/paragraphe Unicode) -> espace
-        bio = bio.replace(" ", " ").replace(" ", " ")
+        bio = bio.replace("\u2028", " ").replace("\u2029", " ")
     return {
         "name": artist.get("name"),
         "bio": bio,
