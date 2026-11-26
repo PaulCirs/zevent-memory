@@ -1,0 +1,36 @@
+[project]
+name = "app"
+version = "0.1.0"
+description = "Backend de ZEvent Memory (API FastAPI)"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.165.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.10,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.2",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.6",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# E/W : style PEP 8, F : erreurs (variables inutilisées...), I : ordre des imports,
+# B : pièges courants, UP : syntaxe Python moderne, SIM : simplifications
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
