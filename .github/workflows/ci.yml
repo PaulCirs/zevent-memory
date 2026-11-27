@@ -45,7 +45,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv ne publie pas d'étiquette majeure (v10) : version complète obligatoire.
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
 
