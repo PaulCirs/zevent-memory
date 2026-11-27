@@ -63,6 +63,14 @@ jobs:
       - name: mypy
         run: uv run mypy src tests
 
+      # Toutes les migrations doivent s'appliquer sur une base vide, comme au premier déploiement.
+      - name: Migrations (upgrade head)
+        run: uv run alembic upgrade head
+
+      # Échoue si un modèle a changé sans migration correspondante.
+      - name: Migrations (check)
+        run: uv run alembic check
+
       - name: pytest
         run: uv run pytest
 
