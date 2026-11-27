@@ -26,6 +26,10 @@ cd frontend && npm install && npm run dev           # site sur http://localhost:
 
 `docker compose down` arrête la base sans perdre les données ; `docker compose down -v` les efface.
 
+Tests du backend : `cd backend && uv run pytest` (PostgreSQL doit tourner). Ils utilisent une base
+séparée, `zevent_memory_test`, recréée et migrée à chaque lancement : la base de dev n'est jamais
+touchée.
+
 ### Migrations de la base
 
 Le schéma est décrit par les modèles de `backend/src/app/models.py` et versionné par
