@@ -1,0 +1,79 @@
+# Vérifications lancées avant chaque commit, sur les fichiers modifiés.
+# Installation (une fois par clone) : pre-commit install
+# Lancer à la main sur tout le repo : pre-commit run --all-files
+
+# cards.json est généré par scripts/fetch_cards.py : on ne le reformate pas.
+exclude: ^data/cards/cards\.json$
+
+repos:
+  # Vérifications génériques
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+        # Les tsconfig sont du JSON avec commentaires (JSONC), refusé par ce hook.
+        exclude: tsconfig.*\.json$
+      - id: check-toml
+      - id: check-merge-conflict
+      # Garde-fou général contre les gros fichiers (exports, archives, vidéos...).
+      - id: check-added-large-files
+        args: [--maxkb=500]
+
+  # Détection de secrets (mots de passe, clés d'API...)
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+  # Hooks "local" : ils utilisent les outils installés dans le projet (uv.lock,
+  # package-lock.json), donc exactement les mêmes versions que l'éditeur et la CI.
+  - repo: local
+    hooks:
+      # Les images des cartes (contenu protégé) ne doivent jamais entrer dans Git.
+      # Elles sont dans .gitignore, mais un `git add -f` passerait quand même.
+      # language: fail = le hook échoue dès qu'un fichier correspond, quelle que soit sa taille.
+      - id: no-card-images
+        name: pas d'images de cartes dans Git
+        entry: images de cartes interdites dans le repo (régénérées par scripts/fetch_cards.py)
+        language: fail
+        files: ^data/cards/(large|thumb)/
+
+      - id: ruff-check
+        name: ruff check (Python)
+        entry: uv run --project backend ruff check --fix
+        language: system
+        types_or: [python, pyi]
+        files: ^(backend|scripts)/
+
+      - id: ruff-format
+        name: ruff format (Python)
+        entry: uv run --project backend ruff format
+        language: system
+        types_or: [python, pyi]
+        files: ^(backend|scripts)/
+
+      # mypy vérifie les types de tout le backend d'un coup (pas fichier par fichier).
+      - id: mypy
+        name: mypy (backend)
+        entry: uv run --directory backend mypy src tests
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+      # ESLint a besoin de tout le projet TypeScript pour ses règles typées.
+      - id: eslint
+        name: eslint (frontend)
+        entry: npm --prefix frontend run lint
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js)$
+        pass_filenames: false
+
+      - id: prettier
+        name: prettier
+        entry: npm --prefix frontend exec -- prettier --write --ignore-unknown
+        language: system
+        types_or: [ts, tsx, javascript, json, css, html, yaml, markdown]
+        exclude: package-lock\.json$

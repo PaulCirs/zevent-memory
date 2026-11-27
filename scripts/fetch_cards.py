@@ -56,6 +56,7 @@ def add_positions(cards: list[dict]) -> None:
     for position, card in enumerate(sorted(cards, key=lambda c: display_key(c["number"])), 1):
         card["position"] = position
 
+
 OUT_DIR = Path(__file__).resolve().parent.parent / "data" / "cards"
 
 
@@ -85,7 +86,10 @@ def clean_artist(artist) -> dict | None:
     return {
         "name": artist.get("name"),
         "bio": bio,
-        "links": [{"network": l.get("network"), "url": l.get("url")} for l in artist.get("links", [])],
+        "links": [
+            {"network": link.get("network"), "url": link.get("url")}
+            for link in artist.get("links", [])
+        ],
     }
 
 
@@ -142,7 +146,9 @@ def main():
 
     add_positions(result)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    (OUT_DIR / "cards.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    (OUT_DIR / "cards.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     size_mb = sum(f.stat().st_size for f in OUT_DIR.rglob("*") if f.is_file()) / 1e6
     print(f"\nTerminé : {len(result)} cartes, {size_mb:.1f} Mo dans {OUT_DIR}")
