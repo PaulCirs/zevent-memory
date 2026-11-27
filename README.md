@@ -25,6 +25,12 @@ cd frontend && npm install && npm run dev           # site sur http://localhost:
 
 `docker compose down` arrête la base sans perdre les données ; `docker compose down -v` les efface.
 
+### Vérifications avant commit
+
+Une fois par clone : `uv tool install pre-commit` puis `pre-commit install`.
+Ruff, mypy, ESLint, Prettier et gitleaks tournent alors à chaque `git commit`.
+Pour tout vérifier à la main : `pre-commit run --all-files`.
+
 ## Récupérer les images des cartes
 
 Les images ne sont pas dans le repo. Pour les régénérer :

@@ -1,0 +1,11 @@
+# Config Ruff commune à tout le Python du repo (backend/ et scripts/).
+line-length = 100
+
+[lint]
+# E/W : style PEP 8, F : erreurs (variables inutilisées...), I : ordre des imports,
+# B : pièges courants, UP : syntaxe Python moderne, SIM : simplifications
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+
+[lint.isort]
+# Sans ça, Ruff lancé depuis la racine ne reconnaît pas `app` comme notre propre code.
+known-first-party = ["app"]
